@@ -96,8 +96,12 @@ async fn save_vote(state: State<AppState>, vote: VoteRequest) -> Result<(), sqlx
     // We run the query with fetch_all to indicate that the entire result should be brought into a vector rather than streamed
     // https://docs.rs/sqlx/latest/sqlx/query/struct.Query.html
     let res = sqlx::query("SELECT * FROM votes")
-                .fetch_all(&state.db)
-                .await?;
+    .fetch_all(&state.db)
+    .await?;
+
+    for r in res {   
+        println!("{} vote for {}", r.get::<&str,_>("voter_name"), r.get::<&str,_>("restaurant_name"));
+    }
 
     let _ = sqlx::query("INSERT INTO votes (voter_name, restaurant_name) VALUES (?, ?)")
                 .bind(vote.voter_name)
@@ -105,9 +109,6 @@ async fn save_vote(state: State<AppState>, vote: VoteRequest) -> Result<(), sqlx
                 .execute(&state.db)
                 .await?;
 
-    for r in res {
-        println!("{} vote for {}", r.get::<&str,_>("voter_name"), r.get::<&str,_>("restaurant_name"));
-    }
 
     Ok(())
 }
