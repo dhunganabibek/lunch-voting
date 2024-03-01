@@ -29,10 +29,7 @@ async fn main() {
     // https://docs.rs/sqlx/latest/sqlx/type.SqlitePool.html
     let db = SqlitePool::connect("sqlite::memory:").await.unwrap();
     let _res = sqlx::query("CREATE TABLE IF NOT EXISTS votes 
-        (id INTEGER PRIMARY KEY
-        voter_name VARCHAR(255) NOT NULL, 
-        restaurant_name VARCHAR(255) NOT NULL,
-        ),")
+        (id INTEGER PRIMARY KEY,voter_name VARCHAR(255) NOT NULL,restaurant_name VARCHAR(255) NOT NULL)")
         .execute(&db)
         .await
         .expect("Failed to create votes table");
@@ -100,6 +97,12 @@ async fn save_vote(state: State<AppState>, vote: VoteRequest) -> Result<(), sqlx
     // https://docs.rs/sqlx/latest/sqlx/query/struct.Query.html
     let res = sqlx::query("SELECT * FROM votes")
                 .fetch_all(&state.db)
+                .await?;
+
+    let _ = sqlx::query("INSERT INTO votes (voter_name, restaurant_name) VALUES (?, ?)")
+                .bind(vote.voter_name)
+                .bind(vote.restaurant_name)
+                .execute(&state.db)
                 .await?;
 
     for r in res {
