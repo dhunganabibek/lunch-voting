@@ -1,7 +1,7 @@
 // use declarations pull structs, functions, and traits into the current namespace from other crates and libraries
 // https://doc.rust-lang.org/reference/items/use-declarations.html
 use axum::extract::State;
-use axum::routing::{get, post};
+use axum::routing::{post};
 use axum::{Json, Router};
 use serde::{Deserialize, Serialize};
 use sqlx::{Executor, Row, SqlitePool};
